@@ -1,0 +1,148 @@
+<!-- Page Header -->
+<div class="row align-items-center mb-4">
+    <div class="col-md-6">
+        <h1 class="h3 fw-bold text-primary">Item Management</h1>
+    </div>
+
+    <!-- Search -->
+    <div class="col-md-3 mt-2 mt-md-0">
+        <input type="text" class="form-control" placeholder="Search items..." ng-model="searchText" style="height: 40px;">
+    </div>
+
+    <!-- Create Button -->
+    <div class="col-md-3 d-flex justify-content-md-end mt-2 mt-md-0">
+        <button class="btn btn-success" data-toggle="modal" data-target="#create-user" style="height: 40px;">
+            <i class="bi bi-plus-lg"></i> Create New
+        </button>
+    </div>
+</div>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>No</th>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Price</th>
+            <th>Status</th>
+            <th width="220px">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="item in items">
+            <td>{{ item.id }}</td>
+            <td>{{ item.title }}</td>
+            <td>{{ item.description }}</td>
+            <td>{{ item.price }}</td>
+            <td>{{ item.status == 1 ? 'Active' : 'Inactive' }}</td>
+            <td>
+                <button class="btn btn-primary" ng-click="edit(item.id)" data-toggle="modal" data-target="#edit-data">Edit</button>
+                <button class="btn btn-danger" ng-click="remove(item, $index)">Delete</button>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<!-- Centered Pagination for Bootstrap 3 -->
+<nav aria-label="Page navigation" class="text-center">
+    <ul class="pagination">
+        <!-- Previous -->
+        <li ng-class="{disabled: currentPage == 1}">
+            <a href="" ng-click="getResultsPage(currentPage - 1)">Previous</a>
+        </li>
+
+        <!-- Page Numbers -->
+        <li ng-repeat="page in getPagesArray()" ng-class="{active: currentPage == page}">
+            <a href="" ng-click="getResultsPage(page)">{{ page }}</a>
+        </li>
+
+        <!-- Next -->
+        <li ng-class="{disabled: currentPage == lastPage}">
+            <a href="" ng-click="getResultsPage(currentPage + 1)">Next</a>
+        </li>
+    </ul>
+</nav>
+
+
+<!-- CREATE MODAL -->
+<div class="modal fade" id="create-user" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form name="addItem" ng-submit="saveAdd()">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Create Item</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <strong>Title:</strong>
+                        <input type="text" ng-model="createForm.title" class="form-control" placeholder="Title" required>
+                    </div>
+                    <div class="form-group">
+                        <strong>Description:</strong>
+                        <textarea ng-model="createForm.description" class="form-control" placeholder="Description"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <strong>Price:</strong>
+                        <input type="number" ng-model="createForm.price" class="form-control" placeholder="Price">
+                    </div>
+                    <div class="form-group">
+                        <strong>Status:</strong>
+                        <select ng-model="createForm.status" class="form-control">
+                            <option value="1">Active</option>
+                            <option value="0">Inactive</option>
+                        </select>
+                    </div>
+                    <!-- Optional hidden fields for created_by -->
+                    <input type="hidden" ng-model="createForm.created_by" value="1">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" ng-disabled="addItem.$invalid" class="btn btn-primary">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal fade" id="edit-data" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form name="editItem" ng-submit="saveEdit()">
+                <input type="hidden" ng-model="editForm.id">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Edit Item</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <strong>Title:</strong>
+                        <input type="text" ng-model="editForm.title" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <strong>Description:</strong>
+                        <textarea ng-model="editForm.description" class="form-control"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <strong>Price:</strong>
+                        <input type="number" ng-model="editForm.price" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <strong>Status:</strong>
+                        <select ng-model="editForm.status" class="form-control">
+                            <option value="1">Active</option>
+                            <option value="0">Inactive</option>
+                        </select>
+                    </div>
+                    <!-- Optional hidden field for updated_by -->
+                    <input type="hidden" ng-model="editForm.updated_by" value="1">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" ng-disabled="editItem.$invalid" class="btn btn-primary">Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
