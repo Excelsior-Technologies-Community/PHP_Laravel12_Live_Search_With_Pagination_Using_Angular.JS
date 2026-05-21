@@ -8,8 +8,11 @@ Route::get('/', function () {
 });
 
 Route::resource('items', ItemController::class);
+Route::get('/items', [ItemController::class, 'index']);
 
 // Templates
-Route::get('/templates/{template}', function($template){
+Route::get('/templates/{template}', function ($template) {
     return view('templates.' . str_replace('.html', '', $template));
 });
+
+Route::get('/items/export/csv', [ItemController::class, 'exportCsv']);
