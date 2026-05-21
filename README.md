@@ -786,3 +786,7 @@ http://127.0.0.1:8000
 ---
 
 Your PHP_Laravel12_Live_Search_With_Pagination_Using_Angular.JS Project is Now Ready!
+<<<<<<< HEAD
+=======
+
+>>>>>>> development
