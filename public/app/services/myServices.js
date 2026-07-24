@@ -4,9 +4,7 @@ app.factory('dataFactory', function($http){
             var pass = { url: url, method: method || 'GET' };
             if(params) pass.params = params;
             if(dataPost) pass.data = dataPost;
-            return $http(pass).then(r => r.data);
+            return $http(pass).then(function(r){ return r.data; });
         }
-    }
+    };
 });
-
-
