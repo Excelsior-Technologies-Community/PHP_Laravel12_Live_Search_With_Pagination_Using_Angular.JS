@@ -1,0 +1,184 @@
+<div class="dashboard-card">
+
+    <div class="dashboard-title">
+        <i class="fa-solid fa-box"></i>
+        Modern Item Dashboard
+    </div>
+
+    <div class="top-stats">
+        <div class="stat-box bg-blue">
+            <h2>@{{ total }}</h2>
+            <p>Total Items</p>
+        </div>
+        <div class="stat-box bg-green">
+            <h2>@{{ activeCount }}</h2>
+            <p>Active Items</p>
+        </div>
+        <div class="stat-box bg-red">
+            <h2>@{{ inactiveCount }}</h2>
+            <p>Inactive Items</p>
+        </div>
+    </div>
+
+    <div class="filter-box">
+        <div class="row">
+            <div class="col-md-3 search-wrapper">
+                <input type="text" class="form-control" placeholder="Search items..."
+                       ng-model="searchText" ng-change="onSearchChange()" autocomplete="off">
+                <div class="suggestions-box" ng-if="showSuggestions && suggestions.length > 0">
+                    <div class="suggestion-item" ng-repeat="s in suggestions" ng-click="selectSuggestion(s)">
+                        @{{ s.title }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <select class="form-control" ng-model="categoryId">
+                    <option value="">All Categories</option>
+                    <option ng-repeat="cat in categories" value="@{{ cat.id }}">@{{ cat.name }}</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <input type="number" class="form-control" placeholder="Min Price" ng-model="minPrice">
+            </div>
+            <div class="col-md-2">
+                <input type="number" class="form-control" placeholder="Max Price" ng-model="maxPrice">
+            </div>
+            <div class="col-md-2">
+                <select class="form-control" ng-model="status">
+                    <option value="">All Status</option>
+                    <option value="1">Active</option>
+                    <option value="0">Inactive</option>
+                </select>
+            </div>
+            <div class="col-md-1">
+                <button class="btn btn-custom btn-search btn-block" ng-click="search()">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="filter-box" style="margin-top: 10px;">
+        <div class="row">
+            <div class="col-md-3">
+                <input type="date" class="form-control" placeholder="Date From" ng-model="dateFrom">
+            </div>
+            <div class="col-md-3">
+                <input type="date" class="form-control" placeholder="Date To" ng-model="dateTo">
+            </div>
+            <div class="col-md-3">
+                <select class="form-control" ng-model="sortBy">
+                    <option value="">Sort By</option>
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                    <option value="price_asc">Price Low to High</option>
+                    <option value="price_desc">Price High to Low</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+        <button class="btn btn-custom btn-add" ng-click="openAddModal()">
+            <i class="fa-solid fa-plus"></i> Add Item
+        </button>
+
+        <button class="btn btn-custom btn-danger-custom" title="Bulk Delete" ng-click="openBulkDeleteModal()" ng-disabled="selectedCount() === 0">
+            <i class="fa-solid fa-trash"></i> Bulk Delete (@{{ selectedCount() }})
+        </button>
+
+        <button class="btn btn-custom btn-success-custom" title="Bulk Status Change" ng-click="openBulkStatusModal()" ng-disabled="selectedCount() === 0">
+            <i class="fa-solid fa-toggle-on"></i> Bulk Status (@{{ selectedCount() }})
+        </button>
+
+        <button class="btn btn-custom btn-export" ng-click="exportCsv()">
+            <i class="fa-solid fa-download"></i> Export CSV
+        </button>
+
+        <span style="margin-left: auto; color: #aaa;">
+            Sorted by: <b>@{{ sortLabel }}</b>
+        </span>
+    </div>
+
+    <div class="table-box">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="checkbox-cell">
+                        <input type="checkbox" class="custom-checkbox" ng-change="toggleAll()" ng-model="selectAll">
+                    </th>
+                    <th ng-click="setSort('id')">ID <span class="sort-icon">@{{ sortDirIcon }}</span></th>
+                    <th>Image</th>
+                    <th ng-click="setSort('title')">Title</th>
+                    <th>Description</th>
+                    <th ng-click="setSort('price')">Price <span class="sort-icon">@{{ sortDirIcon }}</span></th>
+                    <th>Category</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="item in items track by item.id" ng-class="{selected: isSelected(item.id)}">
+                    <td class="checkbox-cell">
+                        <input type="checkbox" class="custom-checkbox" ng-change="toggleSelect(item.id)" ng-model="selectedItems[item.id]">
+                    </td>
+                    <td>#@{{ item.id }}</td>
+                    <td>
+                        <img ng-if="item.image" ng-src="/storage/@{{ item.image }}" class="image-preview" ng-click="viewDetails(item)">
+                        <div ng-if="!item.image" class="no-image" ng-click="viewDetails(item)">
+                            <i class="fa-solid fa-image"></i>
+                        </div>
+                    </td>
+                    <td><b>@{{ item.title }}</b></td>
+                    <td>@{{ item.description }}</td>
+                    <td>₹ @{{ item.price }}</td>
+                    <td>
+                        <span class="badge-active" style="padding: 5px 10px;">@{{ item.category ? item.category.name : 'N/A' }}</span>
+                    </td>
+                    <td>
+                        <span ng-if="item.status == 1" class="badge-active">Active</span>
+                        <span ng-if="item.status == 0" class="badge-inactive">Inactive</span>
+                    </td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="action-btn view" ng-click="viewDetails(item)" title="View">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                            <button class="action-btn edit" ng-click="openEditModal(item)" title="Edit">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button class="action-btn delete" ng-click="confirmDelete(item)" title="Delete">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <tr ng-if="items.length === 0">
+                    <td colspan="9" style="text-align: center; padding: 40px; color: #aaa;">
+                        @{{ loading ? 'Loading...' : 'No items found.' }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination-section">
+        <button class="page-btn" ng-click="prevPage()" ng-disabled="currentPage == 1 || loading">
+            ⬅ Previous
+        </button>
+        <div class="page-numbers">
+            <span ng-repeat="p in pageNumbers() track by $index">
+                <button ng-if="p != '...'" class="page-num"
+                        ng-click="goToPage(p)"
+                        ng-class="{active: p == currentPage}">
+                    @{{ p }}
+                </button>
+                <span ng-if="p == '...'" class="page-num" style="cursor: default;">...</span>
+            </span>
+        </div>
+        <button class="page-btn" ng-click="nextPage()" ng-disabled="currentPage == lastPage || loading">
+            Next ➡
+        </button>
+    </div>
+
+</div>
